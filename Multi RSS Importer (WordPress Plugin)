@@ -1,0 +1,128 @@
+# 📰 Multi RSS Importer (WordPress Plugin)
+
+Plugin WordPress para importar múltiplos feeds RSS automaticamente, com controle por feed, categorias individuais e foco em performance.
+
+---
+
+## 🚀 Funcionalidades
+
+* ✅ Importação de múltiplos RSS
+* 🗂 Categoria individual por feed
+* 🔁 Prevenção de posts duplicados (GUID + Link)
+* 🖼 Imagem destacada via RSS (`enclosure`)
+* ⚡ Modo leve (sem sobrecarregar o site)
+* ⏱ Execução automática via WP-Cron
+* 🔄 Importação manual com botão no painel
+* 📊 Exibição de última e próxima execução
+* 🧠 Cache de RSS para melhor performance
+
+---
+
+## ⚙️ Configurações
+
+Cada feed pode ter:
+
+* URL do RSS
+* Categoria vinculada
+* Limite de posts por execução
+* Status do post (rascunho, publicado, etc.)
+
+Configuração global:
+
+* Ativar/desativar download de imagens
+* Modo de conteúdo leve
+* Frequência de execução (cron)
+
+---
+
+## 🧩 Compatibilidade
+
+| Item      | Suporte                 |
+| --------- | ----------------------- |
+| WordPress | 5.5+                    |
+| PHP       | 7.4 → 8.2               |
+| PHP 8.3+  | ⚠️ Testado parcialmente |
+
+---
+
+## 📦 Requisitos
+
+* PHP com **cURL** ou `allow_url_fopen` habilitado
+* WP-Cron ativo
+* Memória mínima recomendada: **128MB**
+* SSL funcional para feeds HTTPS
+
+---
+
+## ⚠️ Limitações
+
+* Alguns RSS (como Sindijori) trazem múltiplas notícias em um único item
+* WP-Cron depende de visitas ao site para executar
+* Download de imagens pode impactar performance em servidores mais fracos
+
+---
+
+## 🛠 Instalação
+
+1. Faça upload do plugin em:
+
+   ```
+   /wp-content/plugins/
+   ```
+2. Ative em:
+   **Painel > Plugins**
+3. Configure em:
+   **Configurações > Multi RSS Importer**
+
+---
+
+## 🧪 Uso
+
+* Clique em **"Importar agora"** para execução manual
+* Use o botão **"Testar feed"** para validar RSS
+* Acompanhe:
+
+  * Última execução
+  * Próxima execução agendada
+
+---
+
+## 🧠 Recomendações
+
+Para melhor performance:
+
+* Limite de **3 a 5 posts por feed**
+* Frequência de **1 hora**
+* Download de imagem **desativado no automático**
+* Conteúdo em modo leve
+
+---
+
+## 📌 Roadmap
+
+* [ ] Importação assíncrona
+* [ ] Parser inteligente para feeds complexos
+* [ ] Interface com logs avançados
+* [ ] Suporte a imagens externas (sem download)
+* [ ] Webhook para automações
+
+---
+
+## 👨‍💻 Autor
+
+**Vinicius Castro**
+🌐 https://radiomuriae.com.br
+
+---
+
+## 📄 Licença
+
+GPL2 ou posterior
+
+---
+
+## 💡 Observação
+
+Este plugin foi desenvolvido com foco em performance e uso real em portais de conteúdo e rádios online.
+
+---
