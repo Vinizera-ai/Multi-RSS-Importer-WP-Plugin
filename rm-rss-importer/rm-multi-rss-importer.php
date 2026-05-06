@@ -623,7 +623,20 @@ class RM_Multi_RSS_Importer
 
     private function remove_links_from_content($content)
     {
-    return preg_replace('#<a[^>]*>(.*?)</a>#is', '$1', $content);
+        // Remove tags <a>
+        $content = preg_replace('#<a[^>]*>(.*?)</a>#is', '$1', $content);
+    
+        // Remove URLs soltas
+        $content = preg_replace(
+            '#\bhttps?://[^\s<]+#i',
+            '',
+            $content
+        );
+    
+        // Remove linhas vazias extras
+        $content = preg_replace("/(\r\n|\n|\r){2,}/", "\n\n", $content);
+    
+        return trim($content);
     }
     
     private function get_category_id($name)
