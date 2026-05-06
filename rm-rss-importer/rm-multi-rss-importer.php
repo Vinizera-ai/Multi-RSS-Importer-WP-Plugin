@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Multi RSS Importer
  * Description: Importa múltiplos RSS com categoria individual, limite por feed, prevenção de duplicados e imagem destacada.
- * Version: 1.2.0
+ * Version: 1.3.0
  * Author: Vinicius Castro 
  * Author URI: https://github.com/Vinizera-ai
  * License: GPL2 or later
