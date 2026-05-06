@@ -43,6 +43,8 @@ class RM_Multi_RSS_Importer
             'frequency' => 'hourly',
             'content_mode' => 'clean_html',
             'download_images' => 0,
+            'include_source' => 1,
+            'remove_links' => 1,
             'feeds' => [
                 [
                     'active' => 1,
@@ -108,6 +110,8 @@ class RM_Multi_RSS_Importer
         $out['frequency'] = in_array(($input['frequency'] ?? 'hourly'), ['manual', 'rm_30min', 'hourly', 'twicedaily', 'daily', 'rm_2hours'], true) ? $input['frequency'] : 'hourly';
         $out['content_mode'] = in_array(($input['content_mode'] ?? 'clean_html'), ['clean_html', 'plain_excerpt', 'full_html'], true) ? $input['content_mode'] : 'clean_html';
         $out['download_images'] = !empty($input['download_images']) ? 1 : 0;
+        $out['include_source'] = !empty($input['include_source']) ? 1 : 0;
+        $out['remove_links'] = !empty($input['remove_links']) ? 1 : 0;
         $out['feeds'] = [];
 
         if (!empty($input['feeds']) && is_array($input['feeds'])) {
@@ -267,6 +271,31 @@ class RM_Multi_RSS_Importer
                             </label>
                             <p class="description">Ligado baixa a imagem do RSS uma vez para a mídia do WordPress e define como
                                 imagem destacada. Desligado é mais rápido.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Incluir fonte</th>
+                        <td>
+                            <label class="rm-toggle">
+                                <input type="checkbox" name="<?php echo esc_attr(self::OPTION_KEY); ?>[include_source]"
+                                    value="1" <?php checked(!empty($opts['include_source'])); ?>>
+                                <span class="rm-slider"></span>
+                                <span class="rm-toggle-text"><?php echo !empty($opts['include_source']) ? 'Ligado' : 'Desligado'; ?></span>
+                            </label>
+                            <p class="description">Adiciona “Fonte” no final do post importado.</p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Remover links do texto</th>
+                        <td>
+                            <label class="rm-toggle">
+                                <input type="checkbox" name="<?php echo esc_attr(self::OPTION_KEY); ?>[remove_links]"
+                                    value="1" <?php checked(!empty($opts['remove_links'])); ?>>
+                                <span class="rm-slider"></span>
+                                <span class="rm-toggle-text"><?php echo !empty($opts['remove_links']) ? 'Ligado' : 'Desligado'; ?></span>
+                            </label>
+                            <p class="description">Remove links externos do conteúdo, mantendo apenas o texto.</p>
                         </td>
                     </tr>
                 </table>
@@ -483,8 +512,16 @@ class RM_Multi_RSS_Importer
 
         $raw = $item->get_content() ?: $item->get_description();
         $content = $this->prepare_content($raw, $opts['content_mode']);
-        if ($link) {
-            $content .= "\n\n<p><strong>Fonte:</strong> <a href=\"" . esc_url($link) . "\" target=\"_blank\" rel=\"nofollow noopener\">Sindijori MG</a></p>";
+        if (!empty($opts['remove_links'])) {
+            $content = $this->remove_links_from_content($content);
+        }
+        
+        if (!empty($opts['include_source']) && $link) {
+            if (!empty($opts['remove_links'])) {
+                $content .= "\n\n<p><strong>Fonte:</strong> Sindijori MG</p>";
+            } else {
+                $content .= "\n\n<p><strong>Fonte:</strong> <a href=\"" . esc_url($link) . "\" target=\"_blank\" rel=\"nofollow noopener\">Sindijori MG</a></p>";
+            }
         }
         $cat_id = $this->get_category_id($feed['category'] ?? 'Notícias');
         $post_date = $this->safe_item_date($item);
@@ -584,6 +621,11 @@ class RM_Multi_RSS_Importer
         return wp_kses($clean, $allowed);
     }
 
+    private function remove_links_from_content($content)
+    {
+    return preg_replace('#<a[^>]*>(.*?)</a>#is', '$1', $content);
+    }
+    
     private function get_category_id($name)
     {
         $name = $name ?: 'Notícias';
