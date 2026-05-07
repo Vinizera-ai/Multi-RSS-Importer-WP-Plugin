@@ -524,19 +524,18 @@ class RM_Multi_RSS_Importer
             }
         }
         $cat_id = $this->get_category_id($feed['category'] ?? 'Notícias');
-        $post_date = $this->safe_item_date($item);
+        $post_status = $feed['status'] ?? 'draft';
+        $post_date = $this->safe_item_date($item, $post_status);
 
         $postarr = [
             'post_title' => $title ?: 'Notícia importada',
             'post_content' => $content,
-            'post_status' => $feed['status'] ?? 'draft',
+            'post_status' => $post_status,
             'post_author' => absint($feed['author'] ?? 1),
             'post_category' => [$cat_id],
+            'post_date' => $post_date,
+            'post_date_gmt' => get_gmt_from_date($post_date),
         ];
-        if ($post_date) {
-            $postarr['post_date'] = $post_date;
-            $postarr['post_date_gmt'] = get_gmt_from_date($post_date);
-        }
 
         $post_id = wp_insert_post($postarr, true);
         if (is_wp_error($post_id)) {
@@ -557,9 +556,10 @@ class RM_Multi_RSS_Importer
         return 'inserted';
     }
 
-    private function safe_item_date($item)
+    private function safe_item_date($item, $post_status = 'draft')
     {
         // Evita o bug SimplePie/PHP em que get_date('Y-m-d H:i:s') passa float para date().
+        // Também evita agendamento indevido quando o feed vem com horário em fuso diferente.
         $candidates = [];
         $pub = $item->get_item_tags('', 'pubDate');
         if (!empty($pub[0]['data'])) {
@@ -569,12 +569,23 @@ class RM_Multi_RSS_Importer
         if (!empty($dc[0]['data'])) {
             $candidates[] = $dc[0]['data'];
         }
+
+        $now_ts = current_time('timestamp');
         foreach ($candidates as $raw_date) {
             $ts = strtotime(wp_strip_all_tags($raw_date));
-            if ($ts && $ts > 0) {
-                return date_i18n('Y-m-d H:i:s', (int) $ts);
+            if (!$ts || $ts <= 0) {
+                continue;
             }
+
+            // Se o status for publicar e a data vier no futuro (ex.: diferença de fuso UTC-3),
+            // publica imediatamente para não cair em "Agendados".
+            if ($post_status === 'publish' && $ts > $now_ts) {
+                return current_time('mysql');
+            }
+
+            return wp_date('Y-m-d H:i:s', (int) $ts, wp_timezone());
         }
+
         return current_time('mysql');
     }
 
